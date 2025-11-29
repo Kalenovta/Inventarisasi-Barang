@@ -3,19 +3,24 @@
         (object) [
             "title" => "Dashboard",
             "path" => "/",
-            "icon" => "fas fa-search fa-fw",
+            "icon" => "fas fa-th",
         ],
         (object) [
             "title" => "Produk",
-            "path" => "/products",
-            "icon" => "fas fa-search fa-fw",
+            "path" => "products",
+            "icon" => "fas fa-th",
+        ],
+        (object) [
+            "title" => "Kategori",
+            "path" => "category",
+            "icon" => "fas fa-th",
         ],
      ];
  @endphp
  <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="templates/index3.html" class="brand-link">
-      <img src="templates/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+    <a href="#" class="brand-link">
+      <img src="{{ asset('templates/dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">AdminLTE 3</span>
     </a>
 
@@ -24,7 +29,7 @@
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="templates/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+          <img src="{{ asset('templates/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
           <a href="#" class="d-block">Alexander Pierce</a>
@@ -46,25 +51,17 @@
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          @foreach ($menus as $menu)
           
           <li class="nav-item">
-            <a href="/" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
+            <a href="{{ $menu->path[0] !== '/' ? '/' . $menu->path : $menu->path}}" class="nav-link  {{ request()->path() == $menu->path ? 'active' : '' }}">
+              <i class="nav-icon {{ $menu->icon }}"></i>
               <p>
-                Dashboard
+                {{ $menu->title }}
               </p>
             </a>
           </li>
-
-          <li class="nav-item">
-            <a href="/products" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Produk
-              </p>
-            </a>
-          </li>
-         
+          @endforeach
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
