@@ -47,8 +47,11 @@ php artisan key:generate
 5.Buat Database di MYSQL
 6.Jalankan migration dan seeder
 php artisan migrate --seed
-7.jalankan aplikasi
+7.Jalankan storage link
+php artisan storage:link
+8.jalankan aplikasi
 php artisan serve
+
 
 Akun dengan role admin
 "name" => "admin",
