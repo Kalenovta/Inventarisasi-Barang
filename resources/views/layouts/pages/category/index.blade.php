@@ -34,10 +34,10 @@
                         <td>{{ $category->name }}</td>
                         <td>{{ $category->description }}</td>
                         <td>
-                            <form action="/category/{{ $category->id }}" method="POST">
+                            <form action="/category/{{ $category->id }}" method="POST" onsubmit="return confirm('Jika anda menghapus kategori ini, maka produk yang memiliki kategori ini akan terhapus, apakah anda yakin?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                                <button type="submit" class="btn btn-sm btn-danger" >Hapus</button>
                             </form>
                         </td>
                       </tr>

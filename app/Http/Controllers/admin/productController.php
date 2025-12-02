@@ -6,13 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-
-use function Pest\Laravel\delete;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class productController extends Controller
 {
     public function index(){
+        $user = Auth::user();
+        if($user->role === 'karyawan'){
+                return redirect('/karyawan');
+            }
         $products = Product::with('category')->get();
 
         return view('layouts.pages.products.index', [
@@ -21,6 +24,10 @@ class productController extends Controller
     }
 
     public function create(){
+        $user = Auth::user();
+        if($user->role === 'karyawan'){
+                return redirect('/karyawan');
+            }
         $categories = Category::all();
 
         return view('layouts.pages.products.create',[
@@ -29,21 +36,38 @@ class productController extends Controller
     }
 
     public function store(Request $request){
+        $user = Auth::user();
+        if($user->role === 'karyawan'){
+                return redirect('/karyawan');
+            }
         $validated = $request->validate([
             "name" => "required|min:3",
             "price" => "required",
-            "stock" => "required",
+            "stock" => "required|numeric|min:0",
             "description" => "nullable",
             "sku" => "required",
-            "category_id" => "required"
+            "category_id" => "required",
+            "photo" => "nullable|image|mimes:jpeg,png,jpg,gif|max:2048", // Validasi foto
         ]);
+
+        // Handle upload foto
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $photoName = time() . '_' . $photo->getClientOriginalName();
+            $photoPath = $photo->storeAs('products', $photoName, 'public');
+            $validated['photo'] = $photoPath;
+        }
 
         Product::create($validated);
 
-        return redirect('/products');
+        return redirect('/products')->with('success', 'Produk berhasil ditambahkan');
     }
 
     public function edit($id){
+        $user = Auth::user();
+        if($user->role === 'karyawan'){
+                return redirect('/karyawan');
+            }
         $categories = Category::all();
         $product = Product::findOrFail($id);
 
@@ -52,25 +76,57 @@ class productController extends Controller
             "product" => $product,
         ]);
     }
+
     public function update(Request $request, $id){
+        $user = Auth::user();
+        if($user->role === 'karyawan'){
+                return redirect('/karyawan');
+            }
         $validated = $request->validate([
             "name" => "required|min:3",
             "price" => "required",
-            "stock" => "required",
+            "stock" => "required|numeric|min:0",
             "description" => "nullable",
             "sku" => "required",
-            "category_id" => "required"
+            "category_id" => "required",
+            "photo" => "nullable|image|mimes:jpeg,png,jpg,gif|max:2048",
         ]);
 
-        Product::where('id', $id)->update($validated);
+        $product = Product::findOrFail($id);
 
-        return redirect('/products');
+        // Handle upload foto baru
+        if ($request->hasFile('photo')) {
+            // Hapus foto lama jika ada
+            if ($product->photo && Storage::disk('public')->exists($product->photo)) {
+                Storage::disk('public')->delete($product->photo);
+            }
+
+            $photo = $request->file('photo');
+            $photoName = time() . '_' . $photo->getClientOriginalName();
+            $photoPath = $photo->storeAs('products', $photoName, 'public');
+            $validated['photo'] = $photoPath;
+        }
+
+        $product->update($validated);
+
+        return redirect('/products')->with('success', 'Produk berhasil diupdate');
     }
+
     public function delete($id)
     {
-        $product = Product::where('id', $id);
+        $user = Auth::user();
+        if($user->role === 'karyawan'){
+                return redirect('/karyawan');
+            }
+        $product = Product::findOrFail($id);
+        
+        // Hapus foto jika ada
+        if ($product->photo && Storage::disk('public')->exists($product->photo)) {
+            Storage::disk('public')->delete($product->photo);
+        }
+
         $product->delete();
 
-        return redirect('/products');
+        return redirect('/products')->with('success', 'Produk berhasil dihapus');
     }
 }
